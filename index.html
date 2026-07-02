@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>たのしんポータル｜田野畑村の診療所ガイド</title>
+    <style>
+        /* --- カラー＆デザイン設定 --- */
+        :root {
+            --bg-yellow: #FEF9E7;      /* 優しい薄い黄色 */
+            --main-green: #2E7D32;     /* 中深の緑 */
+            --accent-green: #E8F5E9;   /* 薄い緑 */
+            --text-dark: #2C3E50;      /* 文字色 */
+            --text-muted: #616A6B;    /* 補助文字色 */
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans JP", sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #ECEFF1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        /* スマホContainer */
+        .phone-container {
+            background: linear-gradient(to bottom, #FFFFFF 0%, var(--bg-yellow) 140px, var(--bg-yellow) 100%);
+            width: 100%;
+            max-width: 450px;
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 90px;
+            color: var(--text-dark);
+            box-shadow: 0 0 24px rgba(0,0,0,0.15);
+        }
+
+        /* ヘッダーデザイン */
+        .app-header-area {
+            background-color: #FFFFFF;
+            padding: 16px;
+            text-align: center;
+            border-bottom: 3px solid var(--accent-green);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .app-title {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--main-green);
+            letter-spacing: 1px;
+        }
+        .app-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: bold;
+            margin-top: 2px;
+        }
+        .app-desc {
+            font-size: 11px;
+            color: #7F8C8D;
+            margin-top: 4px;
+        }
+
+        /* 画面切り替え */
+        .app-page {
+            display: none;
+            padding: 20px;
+        }
+        .app-page.active {
+            display: block;
+        }
+
+        /* 6分割メニュー */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .menu-btn {
+            background-color: #FFFFFF;
+            border: 1px solid #E0E0E0;
+            border-radius: 20px;
+            padding: 24px 12px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+        }
+        .menu-btn:active {
+            background-color: var(--accent-green);
+        }
+        .menu-btn .btn-emoji {
+            font-size: 40px;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .menu-btn h3 {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--main-green);
+            margin-bottom: 6px;
+        }
+        .menu-btn p {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+
+        /* タイトル・カード */
+        h2 {
+            font-size: 18px;
+            color: var(--main-green);
+            margin-bottom: 16px;
+            border-left: 5px solid var(--main-green);
+            padding-left: 10px;
+        }
+
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid #F0F4F1;
+        }
+
+        p.description {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 14px;
+        }
+
+        .section-sub-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #FFFFFF;
+            background-color: var(--main-green);
+            padding: 6px 12px;
+            border-radius: 8px;
+            margin-top: 14px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #F5F7F6;
+        }
+        .check-item:last-child {
+            border-bottom: none;
+        }
+        .check-item .item-emoji {
+            font-size: 22px;
+        }
+        .check-item-text h4 {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .check-item-text p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* 自動混雑予報ボックス */
+        .forecast-box {
+            text-align: center;
+            padding: 22px;
+            border-radius: 16px;
+            margin-bottom: 18px;
+            font-weight: bold;
+            box-shadow: var(--card-shadow);
+        }
+        .forecast-low { background-color: #E8F5E9; color: #1B5E20; border: 2px solid #81C784; }
+        .forecast-mid { background-color: #FFF3E0; color: #E65100; border: 2px solid #FFB74D; }
+        .forecast-high { background-color: #FFEBEE; color: #B71C1C; border: 2px solid #E57373; }
+        .forecast-close { background-color: #ECEFF1; color: #455A64; border: 2px solid #B0BEC5; }
+        .forecast-box h4 { font-size: 22px; margin-bottom: 4px; }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: var(--main-green);
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-weight: bold;
+            font-size: 14px;
+            margin: 16px 0;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .tel-template {
+            background-color: #F9FBE7;
+            border: 1px dashed #9CCC65;
+            padding: 14px;
+            border-radius: 12px;
+            margin-top: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .limit-nudge {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            background-color: #F5F5F5;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #E0E0E0;
+            margin-top: 12px;
+        }
+
+        /* 4列・横スクロールワクチンテーブル */
+        .table-scroll-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 10px;
+            border-radius: 12px;
+            border: 1px solid #E0E0E0;
+            box-shadow: var(--card-shadow);
+        }
+        .vaccine-table {
+            width: 650px;
+            border-collapse: collapse;
+            font-size: 12px;
+            background-color: #FFFFFF;
+        }
+        .vaccine-table th, .vaccine-table td {
+            border: 1px solid #E0E0E0;
+            padding: 10px 8px;
+            text-align: left;
+            line-height: 1.4;
+            vertical-align: top;
+        }
+        .vaccine-table th {
+            background-color: var(--accent-green);
+            color: var(--main-green);
+            font-weight: bold;
+        }
+
+        /* 検索窓 */
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #CCCCCC;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .colum-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px;
+            background-color: #FFFFFF;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .loading-text {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* 下部ナビ */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 450px;
+            height: 64px;
+            background-color: #FFFFFF;
+            border-top: 1px solid #E0E0E0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        /* =========================================
+           ▼ 健康診断ページ専用デザイン (tk-シリーズ) ▼
+           ========================================= */
+        .tk-header {
+            background-color: #E2F5EE;
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 3px solid #C2E7DA;
+            border-radius: 12px; /* スマホ画面に合わせた丸み */
+            margin-bottom: 20px;
+        }
+        .tk-header-sub {
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: #2A6F62;
+            margin: 0 0 8px 0;
+        }
+        .tk-header-title {
+            font-size: 1.35rem;
+            font-weight: bold;
+            color: #1A4D43;
+            margin: 0;
+            line-height: 1.4;
+        }
+        .tk-section {
+            margin-bottom: 25px;
+        }
+        .tk-section-title {
+            font-size: 1.15rem;
+            font-weight: bold;
+            color: #1A4D43;
+            border-left: 4px solid #2A6F62;
+            padding-left: 10px;
+            margin: 0 0 15px 0;
+        }
+        .tk-point-card {
+            background-color: #FFFFFF;
+            border: 1px solid #EAE5C9;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 15px;
+            box-shadow: var(--card-shadow);
+        }
+        .tk-card-tag {
+            display: inline-block;
+            background-color: #2A6F62;
+            color: #FFFFFF;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .tk-card-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #1A4D43;
+            margin: 0 0 8px 0;
+        }
+        .tk-card-text {
+            font-size: 0.9rem;
+            margin: 0;
+            color: #444444;
+            line-height: 1.5;
+        }
+        .tk-highlight {
+            background: linear-gradient(transparent 60%, #FFF3A1 60%);
+            font-weight: bold;
+        }
+        .tk-alert-box {
+            background-color: #FDF2F2;
+            border-left: 4px solid #C0392B;
+            padding: 12px;
+            font-size: 0.85rem;
+            color: #C0392B;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+        .tk-course-card {
+            border: 1px solid #D1EDE2;
+            border-top: 4px solid #2A6F62;
+            background-color: #FFFFFF;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            box-shadow: var(--card-shadow);
+        }
+        .tk-course-name {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #1A4D43;
+            margin-bottom: 8px;
+        }
+        .tk-course-desc {
+            font-size: 0.85rem;
+            color: #555555;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .tk-course-feature {
+            font-size: 0.8rem;
+            background-color: #E2F5EE;
+            padding: 10px;
+            border-radius: 6px;
+            color: #2A6F62;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        .tk-course-price {
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: right;
+            color: #333333;
+            border-top: 1px dashed #ECECEC;
+            padding-top: 8px;
+            margin: 0;
+        }
+        .tk-note-text {
+            font-size: 0.8rem;
+            color: #666666;
+            margin: 6px 0 0 0;
+            line-height: 1.4;
+        }
+        .tk-action-container {
+            background-color: #FFFFFF;
+            border: 1px solid #EAEAEA;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 15px;
+            box-shadow: var(--card-shadow);
+        }
+        .tk-action-label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #2A6F62;
+            margin-bottom: 10px;
+        }
+        .tk-btn {
+            display: block;
+            text-align: center;
+            background-color: #2A6F62;
+            color: #FFFFFF !important;
+            font-weight: bold;
+            font-size: 0.9rem;
+            padding: 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+        .tk-btn:active {
+            background-color: #1D5248;
+        }
+        .tk-btn-secondary {
+            display: block;
+            text-align: center;
+            background-color: #FFFFFF;
+            color: #2A6F62 !important;
+            border: 2px solid #2A6F62;
+            font-weight: bold;
+            font-size: 0.85rem;
+            padding: 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-bottom: 8px;
+        }
+        .tk-action-subtext {
+            font-size: 0.8rem;
+            color: #555555;
+            margin: 8px 0 0 0;
+            line-height: 1.4;
+        }
+        .tk-footer-alert {
+            background-color: #FFFDF0;
+            border: 1px solid #EAE5C9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .tk-footer-alert-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #BA8B00;
+            margin-bottom: 6px;
+        }
+        .tk-footer-alert-text {
+            font-size: 0.8rem;
+            margin: 0;
+            color: #555555;
+            line-height: 1.5;
+        }
+        /* ▲ 追加ここまで ▲ */
+
+        .nav-home-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--main-green);
+            background: none;
+            border: none;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 10px 40px;
+        }
+        .nav-home-btn .nav-emoji {
+            font-size: 22px;
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    <div class="app-header-area">
+        <div class="app-title">たのしんポータル</div>
+        <div class="app-subtitle">田野畑村の診療所ガイド</div>
+        <div class="app-desc">安心な診療所利用のための情報ポータルです</div>
+    </div>
+
+    <div id="page-home" class="app-page active">
+        <div class="menu-grid">
+            <div class="menu-btn" onclick="switchPage('page-visit')">
+                <span class="btn-emoji">🎒</span>
+                <h3>受診の準備</h3>
+                <p>持ち物や<br>受診時間の目安</p>
+            </div>
+            <div class="menu-btn" onclick="switchPage('page-forecast')">
+                <span class="btn-emoji">🌤️</span>
+                <h3>本日の混雑予報</h3>
+                <p>急患の方向けの<br>待ち時間目安</p>
+            </div>
+            <div class="menu-btn" onclick="switchPage('page-vaccine')">
+                <span class="btn-emoji">💉</span>
+                <h3>ワクチンのご案内</h3>
+                <p>種類と適齢期・<br>受診時の持ち物</p>
+            </div>
+            <div class="menu-btn" onclick="switchPage('page-checkup')">
+                <span class="btn-emoji">📋</span>
+                <h3>健康診断の受け方</h3>
+                <p>事前の注意事項・<br>お申込みの流れ</p>
+            </div>
+            <div class="menu-btn" onclick="switchPage('page-homecare')">
+                <span class="btn-emoji">🏠</span>
+                <h3>在宅医療のご相談</h3>
+                <p>訪問診療の対象や<br>ご相談窓口について</p>
+            </div>
+            <div class="menu-btn" onclick="switchPage('page-colum')">
+                <span class="btn-emoji">🌾</span>
+                <h3>達者で暮らす</h3>
+                <p>地域の皆様のための<br>健康お役立ちコラム</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-visit" class="app-page">
+        <h2>受診の準備（持ち物・受診時間の目安）</h2>
+        <div class="card">
+            <p class="description">
+                患者様のお支払い負担の軽減および正確で安全な診断・治療のために、以下の書類や手帳のご提示をお願いしております。<br><br>
+                受付にてスタッフが丁寧に確認いたしますので、どうぞ安心してお持ちください。
+            </p>
+        </div>
+        
+        <span class="section-sub-title">全員にお持ちいただきたいもの</span>
+        <div class="card">
+            <div class="check-item">
+                <span class="item-emoji">💳</span>
+                <div class="check-item-text">
+                    <h4>保険証 ／ おくすり手帳</h4>
+                    <p>毎月の最初の受診時や保険の変更時には必要です。<br>おくすり手帳は他院のお薬との安全な飲み合わせを<br>確認するために必ずセットでお見せください。</p>
+                </div>
+            </div>
+        </div>
+
+        <span class="section-sub-title">対象となる方にご提示いただきたいもの</span>
+        <div class="card">
+            <div class="check-item">
+                <span class="item-emoji">📄</span>
+                <div class="check-item-text">
+                    <h4>限度額認定証</h4>
+                    <p>※マイナ保険証をお持ちの方は、当院の窓口でもそのまま適用可能です。</p>
+                </div>
+            </div>
+            <div class="check-item">
+                <span class="item-emoji">🎖️</span>
+                <div class="check-item-text">
+                    <h4>各種医療費受給者証</h4>
+                    <p>「特定療養費受給者証」や「障害者医療費受給者証」をお持ちの方は、窓口負担を軽くするために大切ですので受付へお出しください。</p>
+                </div>
+            </div>
+        </div>
+
+        <span class="section-sub-title">特定の症状・目的で通院される方</span>
+        <div class="card">
+            <div class="check-item">
+                <span class="item-emoji">📘</span>
+                <div class="check-item-text">
+                    <h4>家庭血圧手帳 ／ 糖尿病連携手帳</h4>
+                    <p>高血圧症や糖尿病で通院中の方は、自宅での日々の数値を振り返ることで、より適切な体調管理とお薬の調整に役立ちます。</p>
+                </div>
+            </div>
+            <div class="check-item">
+                <span class="item-emoji">🧪</span>
+                <div class="check-item-text">
+                    <h4>他院での各種検査の結果</h4>
+                    <p>他院にも通院中の方は、最近の血液検査データなどをお持ちいただくと、重なる検査を省くことができます。</p>
+                </div>
+            </div>
+            <div class="check-item">
+                <span class="item-emoji">🔍</span>
+                <div class="check-item-text">
+                    <h4>健康診断の結果票</h4>
+                    <p>健診結果の異常についてのご相談の際は、結果票をそのままお持ちください。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-forecast" class="app-page">
+        <h2>本日の混雑予報</h2>
+        <p class="description">定期予約の方以外の患者様が、本日「急患」として今すぐ来所される場合の待ち時間の目安です。</p>
+        
+        <div id="auto-forecast-target">
+            <div class="loading-text">予報データを読み込んでいます...</div>
+        </div>
+
+        <div class="card">
+            <p class="description">
+                ご自宅でお待ちいただける方は、事前にお電話で「受診時間の目安」をお問い合わせください。<br><br>
+                来所の前に「本日受診したい」とご連絡をいただくことで、比較的スムーズなご案内時間をお知らせすることができます。<br><br>
+                <span style="font-size: 12px; color: var(--text-muted);">※なお、緊急対応の重複や、難しい対応が発生する場合は、お電話で案内した時間よりもさらに待ち時間が長くなる可能性がございます。あらかじめご了承いただけますと幸いです。</span>
+            </p>
+        </div>
+
+        <a href="tel:0194333101" class="action-btn">📞 診療所に電話して目安を確認する</a>
+
+        <div class="tel-template">
+            <strong>💡 お電話でスタッフにお伝えください：</strong><br>
+            「◯日から◯℃の熱（または主な症状）があって、これからかかりたい。何時頃に行くのがよいか？」
+        </div>
+
+        <button class="action-btn" style="background-color: #78909C;" onclick="switchPage('page-visit')">
+            🎒 受診時の持ち物を確認する
+        </button>
+    </div>
+
+    <div id="page-vaccine" class="app-page">
+        <h2>ワクチンのご案内</h2>
+        <p class="description">当院で取り扱っている主なワクチンの一覧です。健康を守るため、適切な時期での接種をお勧めしております。（左右にスクロールしてご覧ください）</p>
+        
+        <div class="table-scroll-container">
+            <table class="vaccine-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">ワクチン別</th>
+                        <th style="width: 200px;">ワクチンの種類</th>
+                        <th style="width: 170px;">主な対象・適齢期</th>
+                        <th style="width: 200px;">主な効果/副反応</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: bold; color: #C2185B;">こども</td>
+                        <td>肺炎球菌、五種混合、ロタ、B型肝炎、BCG、水痘、麻しん風しん、おたふくかぜ、日本脳炎、二種混合、子宮頸がん</td>
+                        <td>生後2ヶ月〜順次<br><strong>（公費・無料）</strong><br><span style="color:#7F8C8D; font-size:11px;">※一部任意ワクチン（おたふくかぜ2回目など当院推奨のもの）は有料</span></td>
+                        <td>子どもの重症感染症の各予防。<br>接種部位の赤み、腫れ、一時的な発熱など.</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold; color: #1976D2;">おとな</td>
+                        <td>肺炎球菌、帯状疱疹、RSウイルス</td>
+                        <td>
+                            ・高齢者肺炎球菌：65歳の1年間（このときだけ無料）<br>
+                            ・帯状疱疹：50歳以降の村内居住者（公費補助は生涯1度のみ）<br>
+　　　　　　　　　　　　　　・生ワクチン（1回接種）補助1回4000円<br>
+　　　　　　　　　　　　　　・組換ワクチン（2回接種）補助2回/各1万円<br>
+                            ・RSウイルス：60歳以上の任意接種のみ（公費なし）
+                        </td>
+                        <td>
+                            ・肺炎球菌：肺炎球菌による侵襲性感染症の予防<br>
+                            ・帯状疱疹／RSウイルスの各予防。<br>
+                            注射した場所の痛み、だるさなど。
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold; color: #E65100;">季節限定</td>
+                        <td>・インフルエンザ<br>
+                            ・新型コロナ<br>
+                            ・高齢者向けインフルエンザ（※公費については未定）</td>
+                        <td>毎年秋〜冬にかけて実施<br>（年齢や年度により公費助成あり）</td>
+                        <td>季節性ウイルス感染症の重症化予防。<br>接種部位の軽微な赤みや腫れなど。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <a href="https://script.google.com/macros/s/AKfycbxlzHKRP3xmzdJtzujc51a7bHhEVv2FUq-sNFABgATofjTZgvj0b5t1-CCwBY6bZdwq/exec" target="_blank" class="action-btn" style="background-color: #E1BEE7; color: #4A148C; margin-top: 20px;">
+            🗓️ 「こどもの予防接種スケジュール確認」はこちら
+        </a>
+
+        <span class="section-sub-title">ワクチン接種時の持ち物</span>
+        <div class="card">
+            <p class="description">　
+                ・<strong>母子健康手帳</strong>（特にお子様の場合、これまでの履歴確認に必須です）<br>
+                ・<strong>予防接種手帳</strong>（過去の接種歴の確認に必要です）<br>
+                ・<strong>予診票</strong>（自治体から届いた書類一式）
+            </p>
+        </div>
+
+        <div class="limit-nudge">
+            <strong>お申込み方法について：</strong><br>
+            LINEリッチメニューの【おとな/こどものワクチン申込みフォーム】をご活用ください！<br>
+            窓口やお電話でも予約を承りますが、日中の診察をスムーズに行うためご協力をお願いいたします。<br><br>
+            ※なお、当院に定期通院されている方は、定期受診の際に診察室で「ついでに申込み」も可能です。
+        </div>
+
+        <a href="https://line.me/R/oaMessage/@042yvhul/" target="_blank" class="action-btn" style="background-color: #06C755; color: #FFFFFF; margin-top: 10px;">
+            💬 LINEで予防接種の予約をする
+        </a>
+    </div>
+
+    <div id="page-checkup" class="app-page">
+        <div class="tk-header">
+            <p class="tk-header-sub">すこやかに、地域ではたらく。</p>
+            <h1 class="tk-header-title">国保田野畑村診療所<br>定期健康診断のご案内</h1>
+        </div>
+
+        <div class="tk-section">
+            <h2 class="tk-section-title">スムーズな受診のための3大ポイント</h2>
+            
+            <div class="tk-point-card">
+                <span class="tk-card-tag">① お食事のルール</span>
+                <h3 class="tk-card-title">血液検査を受ける前の「大切な時間」</h3>
+                <p class="tk-card-text">
+                    検査結果をより正確に知り、日頃の健康管理に活かすために、お食事の時間にご協力をお願いしています。
+                </p>
+                <p class="tk-card-text" style="margin-top: 10px; font-size: 0.9em; background-color: #F9F9F9; padding: 10px; border-radius: 6px;">
+                    <strong>● 空腹時検査の方：</strong> 10時間以上の絶食（糖分の入ったお飲み物もお控えください）が必要です。<br style="margin-bottom: 5px;">
+                    <strong>● 随時検査の方：</strong> お食事を終えられてから「3.5時間以上」あけて受診してください。
+                </p>
+            </div>
+
+            <div class="tk-point-card">
+                <span class="tk-card-tag">② 受付のコツ</span>
+                <h3 class="tk-card-title">「健診も、いつものお薬も」を叶える王道テクニック</h3>
+                <p class="tk-card-text">
+                    健診のついでに、定期受診やお薬の処方も希望される方へ。<br>
+                    事前に<span class="tk-highlight">【健診予約】と【一般外来予約】をセットで済ませていただくこと</span>で、最もスムーズに診療を受けられます。
+                </p>
+                <p class="tk-card-text" style="margin-top: 8px; color: #555555; font-size: 0.9em;">
+                    最初に窓口で保険証と一緒に受付を済ませていただければ、採血やレントゲンの待ち時間を有効に活用して、診察や手帳の確認、書類の準備を同時進行できます。後からもう一度受付に並び直すタイムロスをなくし、ゆとりある診察につながります。
+                </p>
+            </div>
+
+            <div class="tk-point-card">
+                <span class="tk-card-tag">③ 服装のお願い</span>
+                <h3 class="tk-card-title">当日の服装は「脱ぎ着のしやすさ」がおすすめ</h3>
+                <p class="tk-card-text">
+                    レントゲンや心電図、身体測定がスムーズに進むよう、ボタンの少ないお洋服や、着脱しやすいお靴でお越しください。ご自身の移動がラクになり、スタッフの案内もスムーズになります。
+                </p>
+            </div>
+        </div>
+
+        <div class="tk-section">
+            <h2 class="tk-section-title">目的に合わせた3つのコース</h2>
+            
+            <div class="tk-alert-box">
+                ⚠️ 胸部レントゲンを含む場合は、原則【月曜日】と【金曜日】のみとなります。
+            </div>
+
+            <div class="tk-course-card">
+                <div class="tk-course-name">【A】法定健診コース（年1回・雇入れ時）</div>
+                <div class="tk-course-desc">内容：身体測定、視聴覚、胸部レントゲン、心電図、血液（※1）、尿、診察・問診</div>
+                <p class="tk-course-price">料金(税込)： 15,785 円</p>
+            </div>
+
+            <div class="tk-course-card">
+                <div class="tk-course-name">【B】法定健診ライトコース（年1回・レントゲンなし）</div>
+                <div class="tk-course-desc">内容：身体測定、視聴覚、心電図、血液（※1）、尿、診察・問診</div>
+                <p class="tk-course-price">料金(税込)： 13,685 円</p>
+            </div>
+
+            <div class="tk-course-card">
+                <div class="tk-course-name">【C】若年健診コース（働く世代の振り返り）</div>
+                <div class="tk-course-feature">
+                    <strong>特徴：</strong> 「年に一回、自分の体を振り返って元気に働く」ためのきっかけとして、若年層の健康を支える血液検査項目（ALP、尿酸、腎機能、血球容積、白血球数など）をバランスよく含めたコースです。
+                </div>
+                <div class="tk-course-desc">内容：身体測定、視聴覚、尿、診察・問診 ＋血液（※2）】</div>
+                <p class="tk-course-price">料金(税込)： 11,935 円</p>
+            </div>
+
+            <p class="tk-note-text">（※1）A・Bの血液検査には、貧血・肝機能・脂質・血糖が含まれます。</p>
+            <p class="tk-note-text">（※2）Cの血液検査には、A・Bの項目に加えALP・尿酸・腎機能・血球容積・白血球数が含まれます。</p>
+            <p class="tk-note-text">※Cコースは雇入れや定期的な法定健診の要件を満たせません。</p>
+        </div>
+
+        <div class="tk-section">
+            <h2 class="tk-section-title">お申し込み方法</h2>
+            
+            <div class="tk-action-container">
+                <div class="tk-action-label">● 個人の皆さま</div>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLScZTqrUi3dUAdTClFXFk3_fjuNKaZjyPWq9uKvLQY_8Yq_-4Q/viewform?usp=header" target="_blank" class="tk-btn">インターネットから申し込む（Googleフォーム）</a>
+                <p class="tk-action-subtext">
+                    ※定期受診や健康相談もご希望の方は、フォーム内で「一般外来も希望」にチェックを入れていただくと当日が非常にスムーズです！
+                </p>
+            </div>
+
+            <div class="tk-action-container">
+                <div class="tk-action-label">● 企業の皆さま（団体）</div>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLScZTqrUi3dUAdTClFXFk3_fjuNKaZjyPWq9uKvLQY_8Yq_-4Q/viewform?usp=header" target="_blank" class="tk-btn">インターネットから申し込む（Googleフォーム）</a>
+                
+                <a href="団体健診申込書.xlsx" target="_blank" class="tk-btn-secondary">📄 申込書式（Excel）をダウンロードする</a>
+                
+                <p class="tk-action-subtext">
+                    ※申込書でお申し込みの場合は、上記より書式をダウンロードし診療所宛にFAXしてください。
+                </p>
+            </div>
+
+            <div class="tk-action-container" style="border-top: 2px dashed #E0E0E0; padding-top: 15px; margin-top: 25px;">
+                <div class="tk-action-label" style="color: #666666;">● ページの表示が崩れる・印刷したい場合</div>
+                
+                <a href="健康診断のご案内.pdf" target="_blank" class="tk-btn-secondary" style="color: #555555; border-color: #999999;">📄 この案内のPDF版をダウンロード（印刷・応急用）</a>
+                
+            </div>
+
+            <div class="tk-footer-alert">
+                <div class="tk-footer-alert-title">⚠️ 診療所からのお願い</div>
+                <p class="tk-footer-alert-text">
+                    外来が混雑する場合、ご希望の日時に沿えないことがございます。お手数ですが、<strong>ご希望日時の3ヶ月前まで</strong>にお申し込みいただけますよう、ご協力をお願いいたします。
+                </p>
+            </div>
+        </div>
+        </div>
+
+    <div id="page-homecare" class="app-page">
+        <h2>在宅医療のご相談</h2>
+        <div class="card" style="border-left: 4px solid #4CAF50; background-color: #F1F8E9;">
+            <h4 style="color: var(--main-green); font-weight: bold; margin-bottom: 6px;">🏠 現在、体制拡充の準備をしています</h4>
+            <p class="description" style="font-size: 13px;">当診療所では、より多くの地域の皆様を支えるため、訪問診療の体制をさらに整えている段階です。なお、現在でも必要な方の往診・ご相談は随時承っております。</p>
+        </div>
+
+        <div class="card">
+            <h4 style="margin-bottom: 8px; font-weight: bold; font-size: 15px;">在宅医療（訪問診療）ではどのようなことをするの？</h4>
+            <p class="description">
+                医師や看護師が定期的にお宅に伺い、健康状態の確認やお薬の調整、生活環境の調整に必要な連携の相談を行います。<br><br>
+                1人での通院が難しい方はどなたでも訪問診療の対象です。気がかりがある場合は、受診の際や担当ケアマネジャー様を通じてお気軽にご相談ください。
+            </p>
+        </div>
+
+        <div style="margin-top: 40px; border-top: 1px dashed #CCC; padding-top: 20px; text-align: center; color: var(--text-muted); font-size: 13px;">
+            ※申込みフォームや申込PDFダウンロードについて準備中です。体制が整い次第、こちらからダウンロードや直接入力が可能になります。
+        </div>
+    </div>
+
+    <div id="page-colum" class="app-page">
+        <h2>達者で暮らす（たのしんの健康情報）</h2>
+        <p class="description">いつまでも住み慣れた田野畑村で元気に暮らすための田野畑村診療所が発信するコラムです。</p>
+
+        <input type="text" id="columSearch" class="search-box" onkeyup="filterColums()" placeholder="🔍 タイトルで検索... (例: LINE、インフル)">
+
+        <div id="columList">
+            
+            <a href="公式LINE始めました.pdf" target="_blank" class="colum-list-item">
+                <span>📢 【お知らせ】公式LINE始めました</span>
+                <span style="color: var(--main-green);">▶</span>
+            </a>
+	    <a href="帯状疱疹ワクチンの選び方.pdf" target=" blank" class="colum-list-item">
+		<span>💉帯状疱疹ワクチンの選び方(/span>
+		<span style="color: var(--main-green);">▶</span>
+	    </a> 
+
+            </div>
+    </div>
+
+    <div id="page-calendar" class="app-page">
+      <h2>診療カレンダー</h2>
+      <p class="description">当診療所の休診日や、特別な診療スケジュール（集団予防接種対応など）をご案内しています。</p>
+
+      <div style="position: relative; padding-bottom: 100%; height: 0; overflow: hidden; border-radius: 12px; box-shadow: var(--card-shadow); border: 1px solid #E0E0E0; background-color: #FFF;">
+        
+        <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Asia%2FTokyo&showPrint=0&showTz=0&showCalendars=0&src=Nzc5N2VmNGNlZTc2M2JkMDE0Y2RmNGRiZGU3ZTNhYjE1MmI5OGY5YTM2NGZmNjQ5ODAxYzUxMGFiNzUyNjA3Y0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t&src=amEuamFwYW5lc2UjaG9saWRheUBncm91cC52LmNhbGVuZGFyLmdvb2dsZS5jb20&color=%237cb342&color=%230b8043" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" frameborder="0" scrolling="no"></iframe>
+        </div>
+
+    <div class="limit-nudge" style="margin-top: 20px;">
+        <strong>💡 見づらい場合：</strong><br>
+        スマートフォンを横向きにしていただくと、より大きくはっきりと文字をご確認いただけます。
+    </div>
+   </div>
+
+    <div class="bottom-nav">
+        <button class="nav-home-btn" onclick="switchPage('page-home')">
+            <span class="nav-emoji">🏠</span>
+            <div>ホームへ戻る</div>
+        </button>
+    </div>
+</div>
+
+<script>
+    // ===================================================
+    // ⚙️ 【設定：混雑予報自動連動用GASのウェブアプリURL】
+    // ===================================================
+    const FORECAST_API_URL = "https://script.google.com/macros/s/AKfycbw8MIJXEKQHTkwYrC92rRKAcPwWevr5-2enIowlXL5fXGv5xHUTzIvZExj_wd46Ycup/exec";
+    // ===================================================
+
+    // 🛠️ Googleフォームから最新データを読み込んで判定（エラーガード＆休診モード搭載）
+    function calculateForecast() {
+        const targetDiv = document.getElementById('auto-forecast-target');
+        if(!FORECAST_API_URL){
+            targetDiv.innerHTML = `<div class="loading-text" style="color:orange;">💡 予報用GASのURLを設定するとフォーム連動が始まります。</div>`;
+            return;
+        }
+
+        fetch(FORECAST_API_URL)
+            .then(response => response.json())
+            .then(data => {
+                // 【ガード①】データ異常対策
+                if (data.error || data.yoyaku === undefined || data.waku === undefined) {
+                    targetDiv.innerHTML = `<div class="loading-text">予報データを更新しています。しばらくお待ちください...</div>`;
+                    return;
+                }
+
+                // 【ガード②】休診表示（0, 0）
+                if (Number(data.yoyaku) === 0 && Number(data.waku) === 0) {
+                    targetDiv.innerHTML = `<div class="forecast-box forecast-close"><h4>本日は休診日です</h4><p>急患受付やお電話の対応もお休みとなります</p></div>`;
+                    return;
+                }
+
+                const ratio = Number(data.yoyaku) / Number(data.waku);
+                let html = '';
+
+                // 【ガード③】計算不能時の対策
+                if (isNaN(ratio)) {
+                    targetDiv.innerHTML = `<div class="loading-text">予報データを更新しています。しばらくお待ちください...</div>`;
+                    return;
+                }
+
+                if (ratio < 0.5) {
+                    html = `<div class="forecast-box forecast-low"><h4>予報：小</h4><p>30分以内のご案内見込みです</p></div>`;
+                } else if (ratio >= 0.5 && ratio < 0.8) {
+                    html = `<div class="forecast-box forecast-mid"><h4>予報：中</h4><p>30分〜60分以内にご案内見込みです</p></div>`;
+                } else {
+                    html = `<div class="forecast-box forecast-high"><h4>予報：大</h4><p>60分〜90分以上お時間をいただく見込みです</p></div>`;
+                }
+                targetDiv.innerHTML = html;
+            })
+            .catch(error => {
+                console.error("Error loading forecast:", error);
+                targetDiv.innerHTML = `<div class="loading-text" style="color:red;">❌ 予報データの取得に失敗しました。</div>`;
+            });
+    }
+
+    // 🛠️ コラム直置き仕様の検索機能
+    function filterColums() {
+        const query = document.getElementById('columSearch').value.toLowerCase();
+        const items = document.getElementsByClassName('colum-list-item');
+        
+        for (let i = 0; i < items.length; i++) {
+            const text = items[i].textContent || items[i].innerText;
+            if (text.toLowerCase().indexOf(query) > -1) {
+                items[i].style.display = "flex"; // デザインが崩れないようflexを維持
+            } else {
+                items[i].style.display = "none";
+            }
+        }
+    }
+
+    // 画面遷移
+    function switchPage(pageId) {
+        const pages = document.querySelectorAll('.app-page');
+        pages.forEach(page => page.classList.remove('active'));
+
+        const targetPage = document.getElementById(pageId);
+        if (targetPage) {
+            targetPage.classList.add('active');
+            window.scrollTo(0, 0);
+        }
+    }
+
+    // 起動時に予報のみ着火（コラムは自動取得しないため削除）
+    window.onload = function() {
+        calculateForecast();      
+    };
+</script>
+</body>
+</html>
