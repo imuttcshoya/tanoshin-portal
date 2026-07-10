@@ -712,7 +712,7 @@
         <span class="section-sub-title">ワクチン接種時の持ち物</span>
         <div class="card">
             <p class="description">　
-                ・<strong>母子健康手帳</strong>（特にお子様の場合、これまでの履歴確認に必須です）<br>
+                ・<strong>母子健康手帳</strong>（お子様のこれまでの接種歴確認に必須です）<br>
                 ・<strong>予防接種手帳</strong>（過去の接種歴の確認に必要です）<br>
                 ・<strong>予診票</strong>（自治体から届いた書類一式）
             </p>
@@ -721,7 +721,7 @@
         <div class="limit-nudge">
             <strong>お申込み方法について：</strong><br>
             LINEリッチメニューの【おとな/こどものワクチン申込みフォーム】をご活用ください！<br>
-            窓口やお電話でも予約を承りますが、日中の診察をスムーズに行うためご協力をお願いいたします。<br><br>
+            窓口やお電話でも予約を承りますが、日中の診療をスムーズに行うために、お問い合わせは平日の16時以降にお願いします。<br><br>
             ※なお、当院に定期通院されている方は、定期受診の際に診察室で「ついでに申込み」も可能です。
         </div>
 
@@ -753,13 +753,13 @@
 
             <div class="tk-point-card">
                 <span class="tk-card-tag">② 受付のコツ</span>
-                <h3 class="tk-card-title">「健診も、いつものお薬も」を叶える王道テクニック</h3>
+                <h3 class="tk-card-title">「健診もいつものお薬も」を叶えるために</h3>
                 <p class="tk-card-text">
-                    健診のついでに、定期受診やお薬の処方も希望される方へ。<br>
+                    健診と一緒に、定期診察やお薬の処方も希望される方へ<br>
                     事前に<span class="tk-highlight">【健診予約】と【一般外来予約】をセットで済ませていただくこと</span>で、最もスムーズに診療を受けられます。
                 </p>
                 <p class="tk-card-text" style="margin-top: 8px; color: #555555; font-size: 0.9em;">
-                    最初に窓口で保険証と一緒に受付を済ませていただければ、採血やレントゲンの待ち時間を有効に活用して、診察や手帳の確認、書類の準備を同時進行できます。後からもう一度受付に並び直すタイムロスをなくし、ゆとりある診察につながります。
+                    最初に窓口で保険証と一緒に受付していただければ、採血やレントゲンの待ち時間を有効に活用して、診察や手帳の確認、書類の準備を同時進行できます。後からもう一度受付に並び直すタイムロスをなくし、ゆとりある診察につながります。
                 </p>
             </div>
 
@@ -780,7 +780,7 @@
             </div>
 
             <div class="tk-course-card">
-                <div class="tk-course-name">【A】法定健診コース（年1回・雇入れ時）</div>
+                <div class="tk-course-name">【A】法定健診コース（年1回、雇入れ時）</div>
                 <div class="tk-course-desc">内容：身体測定、視聴覚、胸部レントゲン、心電図、血液（※1）、尿、診察・問診</div>
                 <p class="tk-course-price">料金(税込)： 15,785 円</p>
             </div>
@@ -823,7 +823,7 @@
                 <a href="団体健診申込書.xlsx" target="_blank" class="tk-btn-secondary">📄 申込書式（Excel）をダウンロードする</a>
                 
                 <p class="tk-action-subtext">
-                    ※申込書でお申し込みの場合は、上記より書式をダウンロードし診療所宛にFAXしてください。
+                    ※団体の場合は、Googleフォームとは別に、申込書に必要事項を埋めFAXをお願いします。上記より書式をダウンロードし診療所宛にFAXしてください。
                 </p>
             </div>
 
@@ -837,7 +837,7 @@
             <div class="tk-footer-alert">
                 <div class="tk-footer-alert-title">⚠️ 診療所からのお願い</div>
                 <p class="tk-footer-alert-text">
-                    外来が混雑する場合、ご希望の日時に沿えないことがございます。お手数ですが、<strong>ご希望日時の3ヶ月前まで</strong>にお申し込みいただけますよう、ご協力をお願いいたします。
+                    外来が混雑する場合、ご希望の日時に沿えないことがございます。お手数ですが、<span class="tk-highlight">ご希望日時の3ヶ月前まで</span>にお申し込みいただけますよう、ご協力をお願いいたします。
                 </p>
             </div>
         </div>
@@ -913,7 +913,7 @@
     const FORECAST_API_URL = "https://script.google.com/macros/s/AKfycbw8MIJXEKQHTkwYrC92rRKAcPwWevr5-2enIowlXL5fXGv5xHUTzIvZExj_wd46Ycup/exec";
     // ===================================================
 
-    // 🛠️ Googleフォームから最新データを読み込んで判定（エラーガード＆休診モード搭載）
+    // 🛠️ 混雑予報（午前・午後分割対応＆日付整形版）
     function calculateForecast() {
         const targetDiv = document.getElementById('auto-forecast-target');
         if(!FORECAST_API_URL){
@@ -924,35 +924,52 @@
         fetch(FORECAST_API_URL)
             .then(response => response.json())
             .then(data => {
-                // 【ガード①】データ異常対策
-                if (data.error || data.yoyaku === undefined || data.waku === undefined) {
+                if (data.error || data.am === undefined || data.pm === undefined) {
                     targetDiv.innerHTML = `<div class="loading-text">予報データを更新しています。しばらくお待ちください...</div>`;
                     return;
                 }
 
-                // 【ガード②】休診表示（0, 0）
-                if (Number(data.yoyaku) === 0 && Number(data.waku) === 0) {
-                    targetDiv.innerHTML = `<div class="forecast-box forecast-close"><h4>本日は休診日です</h4><p>急患受付やお電話の対応もお休みとなります</p></div>`;
-                    return;
+                // 1. 長い日付文字列を「〇月〇日」の形式に整形
+                let displayDate = "本日";
+                const parsedDate = new Date(data.date);
+                if (!isNaN(parsedDate.getTime())) {
+                    displayDate = (parsedDate.getMonth() + 1) + '月' + parsedDate.getDate() + '日';
+                } else if (data.date && data.date !== "未設定") {
+                    // 変換不可の場合はそのまま出力
+                    displayDate = data.date;
                 }
 
-                const ratio = Number(data.yoyaku) / Number(data.waku);
-                let html = '';
-
-                // 【ガード③】計算不能時の対策
-                if (isNaN(ratio)) {
-                    targetDiv.innerHTML = `<div class="loading-text">予報データを更新しています。しばらくお待ちください...</div>`;
-                    return;
+                // 2. ページ上部の見出し（h2）を動的に書き換え
+                const titleElement = document.querySelector('#page-forecast h2');
+                if (titleElement) {
+                    titleElement.innerText = `${displayDate}の混雑予報`;
                 }
 
-                if (ratio < 0.5) {
-                    html = `<div class="forecast-box forecast-low"><h4>予報：小</h4><p>30分以内のご案内見込みです</p></div>`;
-                } else if (ratio >= 0.5 && ratio < 0.8) {
-                    html = `<div class="forecast-box forecast-mid"><h4>予報：中</h4><p>30分〜60分以内にご案内見込みです</p></div>`;
-                } else {
-                    html = `<div class="forecast-box forecast-high"><h4>予報：大</h4><p>60分〜90分以上お時間をいただく見込みです</p></div>`;
-                }
-                targetDiv.innerHTML = html;
+                const amMax = 25;
+                const pmMax = 20;
+
+                const buildForecastBox = (yoyaku, max, title) => {
+                    if (yoyaku === 0) {
+                        return `<div class="forecast-box forecast-close"><h4>${title}：休診</h4><p>急患受付やお電話の対応もお休みとなります</p></div>`;
+                    }
+                    
+                    const ratio = yoyaku / max;
+                    if (isNaN(ratio)) return '';
+
+                    if (ratio < 0.5) {
+                        return `<div class="forecast-box forecast-low"><h4>${title}：小</h4><p>30分以内のご案内見込みです</p></div>`;
+                    } else if (ratio >= 0.5 && ratio < 0.8) {
+                        return `<div class="forecast-box forecast-mid"><h4>${title}：中</h4><p>30分〜60分以内にご案内見込みです</p></div>`;
+                    } else {
+                        return `<div class="forecast-box forecast-high"><h4>${title}：大</h4><p>60分〜90分以上お時間をいただく見込みです</p></div>`;
+                    }
+                };
+
+                const amHtml = buildForecastBox(data.am, amMax, "午前");
+                const pmHtml = buildForecastBox(data.pm, pmMax, "午後");
+
+                // 3. ボックスの出力（不要な日付サブリダイトルは削除）
+                targetDiv.innerHTML = amHtml + pmHtml;
             })
             .catch(error => {
                 console.error("Error loading forecast:", error);
