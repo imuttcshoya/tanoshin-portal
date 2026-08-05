@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>診療予定カレンダー｜国保田野畑村診療所</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F4EE;
+    --paper:#FFFFFF;
+    --ink:#1D3B45;
+    --ink-soft:#587078;
+    --line:#DCD6C8;
+    --line-soft:#EAE5D9;
+
+    --outpatient:#2B6F76;
+    --outpatient-bg:#E5F1F0;
+    --homevisit:#C9822E;
+    --homevisit-bg:#FBEDDD;
+    --facility:#6B8F5A;
+    --facility-bg:#EBF2E6;
+    --closed:#8F897C;
+    --closed-bg:#EEEBE3;
+
+    --radius:12px;
+    --shadow:0 1px 2px rgba(29,59,69,0.06), 0 4px 14px rgba(29,59,69,0.05);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .page{max-width:940px;margin:0 auto;padding:0 24px 64px;}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:44px 4px 22px;position:relative;}
+  .eyebrow{
+    margin:0 0 6px;
+    font-size:13px;
+    letter-spacing:.14em;
+    color:var(--ink-soft);
+    font-weight:500;
+  }
+  h1{
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-weight:700;
+    font-size:clamp(28px,6vw,38px);
+    margin:0 0 18px;
+    letter-spacing:.02em;
+  }
+  .wave{display:block;width:100%;height:20px;color:var(--outpatient);opacity:.55;}
+
+  /* ---------- Tabs row (tabs left, reception hours right) ---------- */
+  .tabs-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px 20px;
+    margin:26px 0 16px;
+  }
+  .view-tabs{
+    display:flex;
+    gap:6px;
+    background:var(--line-soft);
+    padding:5px;
+    border-radius:999px;
+    width:fit-content;
+  }
+  .tab{
+    border:none;
+    background:transparent;
+    font-family:inherit;
+    font-size:15px;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding:9px 22px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:background .18s ease, color .18s ease;
+  }
+  .tab.active{background:var(--ink);color:#fff;}
+  .tab:not(.active):hover{color:var(--ink);}
+
+  .reception-hours{
+    margin:0;
+    font-size:13px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .reception-hours strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- Nav row: prev | center | next (never wraps) ---------- */
+  .nav-row{
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    align-items:center;
+    gap:10px;
+    margin:8px 0 6px;
+  }
+  .nav-btn{
+    border:1px solid var(--line);
+    background:var(--paper);
+    color:var(--ink);
+    font-family:inherit;
+    font-size:14px;
+    font-weight:500;
+    padding:8px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .nav-btn:hover{border-color:var(--ink-soft);}
+
+  .nav-label{
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-size:18px;
+    font-weight:700;
+    text-align:center;
+    white-space:nowrap;
+  }
+
+  .month-select{
+    justify-self:center;
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-size:19px;
+    font-weight:700;
+    color:var(--ink);
+    background:transparent;
+    border:1px solid transparent;
+    border-radius:8px;
+    padding:6px 12px;
+    cursor:pointer;
+    text-align:center;
+  }
+  .month-select:hover{border-color:var(--line);}
+
+  .week-picker-row{
+    display:flex;
+    justify-content:flex-end;
+    margin:0 0 18px;
+  }
+  .week-picker-row .month-picker{
+    border:1px solid var(--line);
+    background:var(--paper);
+    color:var(--ink-soft);
+    font-family:inherit;
+    font-size:12px;
+    padding:6px 10px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+
+  /* ---------- Legend ---------- */
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px 14px;
+    margin:0 0 20px;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .legend .chip{display:inline-flex;align-items:center;gap:6px;}
+  .legend .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  /* ---------- Views ---------- */
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* ---------- Month grid (Mon–Fri, 5 columns, wide) ---------- */
+  .weekday-row{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:10px;
+    margin-top:14px;
+    margin-bottom:8px;
+  }
+  .weekday-row span{
+    text-align:center;
+    font-size:13px;
+    font-weight:700;
+    color:var(--ink-soft);
+    padding-bottom:4px;
+  }
+  .month-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:10px;
+  }
+  .day-cell{
+    background:var(--paper);
+    border:1px solid var(--line-soft);
+    border-radius:12px;
+    min-height:120px;
+    padding:10px 8px 12px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .day-cell.out-of-month{visibility:hidden;}
+  .day-cell .num{font-size:14px;font-weight:700;color:var(--ink-soft);}
+  .day-cell.today .num{
+    color:#fff;background:var(--ink);
+    width:24px;height:24px;border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  .day-cell .note{font-size:11px;color:var(--ink-soft);margin-top:auto;}
+
+  .slot{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:0;
+    border-radius:8px;
+    padding:4px 7px 5px;
+    max-width:100%;
+    overflow:hidden;
+  }
+  .slot .slot-time{font-size:9px;font-weight:500;opacity:.75;line-height:1.5;}
+  .slot .slot-label{
+    font-size:11px;
+    font-weight:700;
+    line-height:1.4;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:100%;
+  }
+  .slot.outpatient{color:var(--outpatient);background:var(--outpatient-bg);}
+  .slot.homevisit{color:var(--homevisit);background:var(--homevisit-bg);}
+  .slot.facility{color:var(--facility);background:var(--facility-bg);}
+  .slot.closed{color:var(--closed);background:var(--closed-bg);}
+
+  /* ---------- Week view ---------- */
+  .week-list{display:flex;flex-direction:column;gap:10px;margin-top:14px;}
+  .week-row{
+    background:var(--paper);
+    border:1px solid var(--line-soft);
+    border-radius:12px;
+    padding:14px 18px;
+    display:flex;
+    align-items:center;
+    gap:20px;
+    box-shadow:var(--shadow);
+  }
+  .week-date{width:90px;flex:none;}
+  .week-date .d{font-family:'Zen Maru Gothic', sans-serif;font-size:22px;font-weight:700;}
+  .week-date .w{font-size:12px;color:var(--ink-soft);}
+  .week-slots{display:flex;flex-wrap:wrap;gap:8px;flex:1;}
+  .week-note{font-size:12px;color:var(--ink-soft);}
+  .week-empty{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:14px;
+    padding:32px 0;
+  }
+
+  footer{margin-top:38px;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--line-soft);padding-top:16px;}
+  footer p{margin:0 0 4px;}
+  footer p:last-child{margin-bottom:0;}
+
+  @media (max-width:600px){
+    .day-cell{min-height:96px;padding:7px 6px;}
+    .week-row{flex-wrap:wrap;gap:8px;padding:12px 14px;}
+    .week-date{width:auto;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hero">
+    <p class="eyebrow">国保田野畑村診療所</p>
+    <h1>診療予定カレンダー</h1>
+    <svg class="wave" viewBox="0 0 400 20" preserveAspectRatio="none">
+      <path d="M0 12 Q 20 2, 40 12 T 80 12 T 120 12 T 160 12 T 200 12 T 240 12 T 280 12 T 320 12 T 360 12 T 400 12"
+            fill="none" stroke="currentColor" stroke-width="2"/>
+    </svg>
+  </header>
+
+  <div class="tabs-row">
+    <nav class="view-tabs" role="tablist">
+      <button class="tab active" data-view="month">月表示</button>
+      <button class="tab" data-view="week">週表示</button>
+    </nav>
+    <p class="reception-hours">午前受付 <strong>8:30〜11:00</strong>　午後受付 <strong>14:00〜16:00</strong></p>
+  </div>
+
+  <!-- Month view nav: prev | month picker (acts as title) | next -->
+  <div class="nav-row" id="monthNavRow">
+    <button class="nav-btn" id="prevMonth">‹ 前の月</button>
+    <input type="month" class="month-select" id="monthPicker" aria-label="年月を選択">
+    <button class="nav-btn" id="nextMonth">次の月 ›</button>
+  </div>
+
+  <!-- Week view nav: prev | label | next, always one line -->
+  <div class="nav-row" id="weekNavRow" style="display:none;">
+    <button class="nav-btn" id="prevWeek">‹ 前の週</button>
+    <span class="nav-label" id="weekLabel"></span>
+    <button class="nav-btn" id="nextWeek">次の週 ›</button>
+  </div>
+  <div class="week-picker-row" id="weekPickerRow" style="display:none;">
+    <input type="month" class="month-picker" id="weekMonthPicker" aria-label="年月を選択">
+  </div>
+
+  <p id="dataStatus" style="display:none;font-size:12px;color:var(--homevisit);margin:0 0 14px;"></p>
+
+  <div class="legend" id="legend"></div>
+
+  <main>
+    <section id="monthView" class="view active">
+      <div class="weekday-row">
+        <span>月</span><span>火</span><span>水</span><span>木</span><span>金</span>
+      </div>
+      <div class="month-grid" id="monthGrid"></div>
+    </section>
+
+    <section id="weekView" class="view">
+      <div class="week-list" id="weekList"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>※診療予定は変更になる場合があります。</p>
+    <p>※当日受診を希望される場合も、診療所へ事前にお電話ください。</p>
+  </footer>
+</div>
+
+<script>
+/* =====================================================================
+   診療予定データ ― 「基本パターン」＋「例外」の2枚のスプレッドシートで管理
+   ---------------------------------------------------------------------
+   ■ 基本パターン（毎週繰り返す標準スケジュール。年をまたいでも書き換え不要）
+     列見出し: 曜日 | 午前 | 午後
+     例)
+       月 | 外来     | 外来
+       火 | 外来     | 訪問診療
+       水 | 訪問診療 | 施設
+       木 | 外来     | 外来
+       金 | 外来     | 訪問診療
+
+   ■ 例外（祝日・研修・臨時休診など、基本パターンと異なる日だけ入力）
+     列見出し: 日付 | 午前 | 午後 | 備考
+     例)
+       2026-08-07 |          | 休診 | 午後休診（研修）
+       2026-08-11 | 休診     | 休診 | 祝日休診
+     セルを空欄にすると「その区分は基本パターンをそのまま使う」という意味になる
+     （＝上書きしたい区分だけ書けばよい）。
+
+   両方とも「ウェブに公開」でCSV形式にして、下のURLに貼り付ける。
+   年が変わっても基本パターンはそのまま使われ続けるので、2027年になっても
+   データを作り直す必要はなく、例外シートに新しい祝日・変更日を追記するだけでよい。
+
+   ■ 第2・第4火曜日の休診について
+     毎月の第2・第4火曜日は自動的に休診として扱われるよう、サイト側のコードに
+     組み込み済み。基本パターン・例外シートのどちらにも入力する必要はない。
+   ===================================================================== */
+const CSV_BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRTx8ftM7iOUlkUl1q2yU2YILMylSh-R59L9mDIuo01F-04z4TNnmzJdoyVADQym6n-nQTRAMktLuuu/pub?gid=0&single=true&output=csv";
+const CSV_EXCEPTIONS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRTx8ftM7iOUlkUl1q2yU2YILMylSh-R59L9mDIuo01F-04z4TNnmzJdoyVADQym6n-nQTRAMktLuuu/pub?gid=71319762&single=true&output=csv";
+
+const FALLBACK_BASE_PATTERN = {
+  "月": { am:"outpatient", pm:"outpatient" },
+  "火": { am:"outpatient", pm:"homevisit" },
+  "水": { am:"homevisit",  pm:"facility"   },
+  "木": { am:"outpatient", pm:"outpatient" },
+  "金": { am:"outpatient", pm:"homevisit"  }
+};
+
+const FALLBACK_EXCEPTIONS = {
+  "2026-08-07": { pm:"closed", note:"午後休診（研修）" },
+  "2026-08-11": { am:"closed", pm:"closed", note:"祝日休診" },
+  "2026-08-28": { pm:"closed", note:"午後休診" }
+};
+
+const CATEGORIES = {
+  outpatient:{ label:"外来" },
+  homevisit:{ label:"訪問診療" },
+  facility:{ label:"施設" },
+  closed:{ label:"休診" }
+};
+
+const WEEKDAY_JP = ["日","月","火","水","木","金","土"];
+const LABEL_TO_KEY = Object.fromEntries(Object.entries(CATEGORIES).map(([k,c]) => [c.label,k]));
+
+let BASE_PATTERN = FALLBACK_BASE_PATTERN;
+let EXCEPTIONS = FALLBACK_EXCEPTIONS;
+
+/* ---------------------------------------------------------------- */
+
+let currentView = "month";
+
+function pad(n){ return String(n).padStart(2,"0"); }
+function toKey(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function isSameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function mondayOf(d){
+  const dow = (d.getDay()+6)%7; // Mon=0 ... Sun=6
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()-dow);
+}
+function monthValue(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}`; }
+
+/* 第2・第4火曜日は休診（毎月自動適用。スプレッドシートへの入力は不要） */
+function isSecondOrFourthTuesday(d){
+  if(d.getDay() !== 2) return false; // 火曜日
+  const nth = Math.ceil(d.getDate()/7);
+  return nth === 2 || nth === 4;
+}
+
+function normalizeDateStr(raw){
+  const s = raw.trim().replace(/\//g, "-");
+  const m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(!m) return null;
+  return `${m[1]}-${pad(Number(m[2]))}-${pad(Number(m[3]))}`;
+}
+
+/* 簡易CSVパーサー（ダブルクォート・カンマを含む備考にも対応） */
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
+  for(let i=0;i<text.length;i++){
+    const c = text[i];
+    if(inQuotes){
+      if(c === '"'){
+        if(text[i+1] === '"'){ field += '"'; i++; } else { inQuotes = false; }
+      } else field += c;
+    } else {
+      if(c === '"') inQuotes = true;
+      else if(c === ","){ row.push(field); field = ""; }
+      else if(c === "\n" || c === "\r"){
+        if(c === "\r" && text[i+1] === "\n") i++;
+        row.push(field); rows.push(row); row = []; field = "";
+      } else field += c;
+    }
+  }
+  if(field.length>0 || row.length>0){ row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(v => v.trim() !== ""));
+}
+
+function buildBasePattern(rows){
+  if(rows.length < 2) return null;
+  const header = rows[0].map(h => h.trim());
+  const idx = { dow: header.indexOf("曜日"), am: header.indexOf("午前"), pm: header.indexOf("午後") };
+  if(idx.dow === -1) return null;
+  const pattern = {};
+  for(let i=1;i<rows.length;i++){
+    const r = rows[i];
+    const dow = (r[idx.dow]||"").trim().charAt(0);
+    if(!"月火水木金".includes(dow)) continue;
+    const amLabel = idx.am>-1 ? (r[idx.am]||"").trim() : "";
+    const pmLabel = idx.pm>-1 ? (r[idx.pm]||"").trim() : "";
+    const entry = {};
+    if(amLabel && LABEL_TO_KEY[amLabel]) entry.am = LABEL_TO_KEY[amLabel];
+    if(pmLabel && LABEL_TO_KEY[pmLabel]) entry.pm = LABEL_TO_KEY[pmLabel];
+    pattern[dow] = entry;
+  }
+  return Object.keys(pattern).length ? pattern : null;
+}
+
+function buildExceptions(rows){
+  if(rows.length < 2) return {};
+  const header = rows[0].map(h => h.trim());
+  const idx = {
+    date: header.indexOf("日付"),
+    am: header.indexOf("午前"),
+    pm: header.indexOf("午後"),
+    note: header.indexOf("備考")
+  };
+  if(idx.date === -1) return {};
+  const exceptions = {};
+  for(let i=1;i<rows.length;i++){
+    const r = rows[i];
+    const dateKey = normalizeDateStr(r[idx.date] || "");
+    if(!dateKey) continue;
+    const amLabel = idx.am>-1 ? (r[idx.am]||"").trim() : "";
+    const pmLabel = idx.pm>-1 ? (r[idx.pm]||"").trim() : "";
+    const note = idx.note>-1 ? (r[idx.note]||"").trim() : "";
+    const entry = {};
+    if(amLabel && LABEL_TO_KEY[amLabel]) entry.am = LABEL_TO_KEY[amLabel];
+    if(pmLabel && LABEL_TO_KEY[pmLabel]) entry.pm = LABEL_TO_KEY[pmLabel];
+    if(note) entry.note = note;
+    if(Object.keys(entry).length) exceptions[dateKey] = entry;
+  }
+  return exceptions;
+}
+
+function getScheduleEntry(d){
+  const dow = WEEKDAY_JP[d.getDay()];
+  const base = BASE_PATTERN[dow] || {};
+  const exc = EXCEPTIONS[toKey(d)];
+
+  let am = base.am, pm = base.pm, note = null;
+
+  if(isSecondOrFourthTuesday(d)){
+    am = "closed"; pm = "closed";
+    note = "第2・第4火曜日は休診";
+  }
+
+  if(exc){
+    if("am" in exc) am = exc.am;
+    if("pm" in exc) pm = exc.pm;
+    if(exc.note) note = exc.note;
+  }
+
+  if(!am && !pm) return null;
+  const entry = {};
+  if(am) entry.am = am;
+  if(pm) entry.pm = pm;
+  if(note) entry.note = note;
+  return entry;
+}
+
+function showDataStatus(message){
+  const el = document.getElementById("dataStatus");
+  if(!message){ el.style.display = "none"; return; }
+  el.textContent = message;
+  el.style.display = "block";
+}
+
+async function fetchCSVRows(url){
+  const res = await fetch(url, { cache:"no-store" });
+  if(!res.ok) throw new Error("HTTP " + res.status);
+  return parseCSV(await res.text());
+}
+
+async function loadData(){
+  const notices = [];
+
+  if(!CSV_BASE_URL || CSV_BASE_URL.startsWith("ここに")){
+    notices.push("基本パターン");
+  } else {
+    try{
+      const parsed = buildBasePattern(await fetchCSVRows(CSV_BASE_URL));
+      if(!parsed) throw new Error("有効な基本パターンが見つかりません");
+      BASE_PATTERN = parsed;
+    } catch(err){
+      console.error("基本パターンの読み込みに失敗:", err);
+      BASE_PATTERN = FALLBACK_BASE_PATTERN;
+      notices.push("基本パターン（読み込み失敗）");
+    }
+  }
+
+  if(!CSV_EXCEPTIONS_URL || CSV_EXCEPTIONS_URL.startsWith("ここに")){
+    notices.push("例外");
+  } else {
+    try{
+      EXCEPTIONS = buildExceptions(await fetchCSVRows(CSV_EXCEPTIONS_URL));
+    } catch(err){
+      console.error("例外データの読み込みに失敗:", err);
+      EXCEPTIONS = FALLBACK_EXCEPTIONS;
+      notices.push("例外（読み込み失敗）");
+    }
+  }
+
+  if(notices.length){
+    showDataStatus(`※現在サンプルデータを表示しています（未設定・未取得: ${notices.join("、")}）。`);
+  } else {
+    showDataStatus(null);
+  }
+}
+
+const seedDate = new Date();
+
+function renderLegend(){
+  const el = document.getElementById("legend");
+  el.innerHTML = Object.entries(CATEGORIES).map(([key,c]) =>
+    `<span class="chip"><span class="dot" style="background:var(--${key})"></span>${c.label}</span>`
+  ).join("");
+}
+
+function slotHTML(part, category){
+  return `<span class="slot ${category}">
+      <span class="slot-time">${part==="am"?"午前":"午後"}</span>
+      <span class="slot-label">${CATEGORIES[category].label}</span>
+    </span>`;
+}
+
+let monthCursor = new Date(seedDate.getFullYear(), seedDate.getMonth(), 1);
+let weekCursor = mondayOf(seedDate);
+
+/* ---------------- Month view ---------------- */
+
+function renderMonthNav(){
+  document.getElementById("monthPicker").value = monthValue(monthCursor);
+}
+
+function renderMonthGrid(){
+  const grid = document.getElementById("monthGrid");
+  grid.innerHTML = "";
+  const year = monthCursor.getFullYear(), month = monthCursor.getMonth();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const today = new Date();
+
+  const weekdays = [];
+  for(let day=1; day<=daysInMonth; day++){
+    const d = new Date(year, month, day);
+    const dow = d.getDay();
+    if(dow>=1 && dow<=5) weekdays.push(d);
+  }
+  if(weekdays.length===0){ return; }
+
+  const leadOffset = weekdays[0].getDay()-1; // Mon=0
+  for(let i=0;i<leadOffset;i++){
+    const cell = document.createElement("div");
+    cell.className = "day-cell out-of-month";
+    grid.appendChild(cell);
+  }
+
+  weekdays.forEach(d=>{
+    const entry = getScheduleEntry(d);
+    const cell = document.createElement("div");
+    cell.className = "day-cell" + (isSameDay(d,today) ? " today" : "");
+
+    const num = document.createElement("span");
+    num.className = "num";
+    num.textContent = d.getDate();
+    cell.appendChild(num);
+
+    if(entry){
+      ["am","pm"].forEach(part => {
+        if(entry[part]) cell.insertAdjacentHTML("beforeend", slotHTML(part, entry[part]));
+      });
+      if(entry.note){
+        const note = document.createElement("span");
+        note.className = "note";
+        note.textContent = entry.note;
+        cell.appendChild(note);
+      }
+    }
+    grid.appendChild(cell);
+  });
+}
+
+function renderMonth(){
+  renderMonthNav();
+  renderMonthGrid();
+}
+
+/* ---------------- Week view ---------------- */
+
+function renderWeekNav(){
+  document.getElementById("weekLabel").textContent =
+    `${weekCursor.getMonth()+1}/${weekCursor.getDate()}（月曜日）〜`;
+  document.getElementById("weekMonthPicker").value = monthValue(weekCursor);
+}
+
+function renderWeekList(){
+  const el = document.getElementById("weekList");
+  const days = [0,1,2,3,4].map(i => new Date(weekCursor.getFullYear(), weekCursor.getMonth(), weekCursor.getDate()+i));
+
+  const rows = days.map(d=>{
+    const entry = getScheduleEntry(d) || {};
+    const parts = ["am","pm"].filter(p => entry[p]);
+    return { d, entry, parts };
+  }).filter(r => r.parts.length>0);
+
+  if(rows.length===0){
+    el.innerHTML = `<div class="week-empty">該当する予定がありません。</div>`;
+    return;
+  }
+
+  el.innerHTML = rows.map(({d,entry,parts})=>{
+    const slots = parts.map(p => slotHTML(p, entry[p])).join("");
+    return `
+      <div class="week-row">
+        <div class="week-date">
+          <div class="d">${d.getMonth()+1}/${d.getDate()}</div>
+          <div class="w">${WEEKDAY_JP[d.getDay()]}曜日</div>
+        </div>
+        <div class="week-slots">${slots}</div>
+        ${entry.note ? `<div class="week-note">${entry.note}</div>` : ""}
+      </div>`;
+  }).join("");
+}
+
+function renderWeek(){
+  renderWeekNav();
+  renderWeekList();
+}
+
+/* ---------------- Tabs & controls ---------------- */
+
+document.querySelectorAll(".tab").forEach(tab=>{
+  tab.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    tab.classList.add("active");
+    currentView = tab.dataset.view;
+    document.getElementById("monthView").classList.toggle("active", currentView==="month");
+    document.getElementById("weekView").classList.toggle("active", currentView==="week");
+    document.getElementById("monthNavRow").style.display = currentView==="month" ? "grid" : "none";
+    document.getElementById("weekNavRow").style.display = currentView==="week" ? "grid" : "none";
+    document.getElementById("weekPickerRow").style.display = currentView==="week" ? "flex" : "none";
+  });
+});
+
+document.getElementById("prevMonth").addEventListener("click", ()=>{
+  monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth()-1, 1);
+  renderMonth();
+});
+document.getElementById("nextMonth").addEventListener("click", ()=>{
+  monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth()+1, 1);
+  renderMonth();
+});
+document.getElementById("monthPicker").addEventListener("change", (e)=>{
+  const [y,m] = e.target.value.split("-").map(Number);
+  if(!y || !m) return;
+  monthCursor = new Date(y, m-1, 1);
+  renderMonth();
+});
+
+document.getElementById("prevWeek").addEventListener("click", ()=>{
+  weekCursor = new Date(weekCursor.getFullYear(), weekCursor.getMonth(), weekCursor.getDate()-7);
+  renderWeek();
+});
+document.getElementById("nextWeek").addEventListener("click", ()=>{
+  weekCursor = new Date(weekCursor.getFullYear(), weekCursor.getMonth(), weekCursor.getDate()+7);
+  renderWeek();
+});
+document.getElementById("weekMonthPicker").addEventListener("change", (e)=>{
+  const [y,m] = e.target.value.split("-").map(Number);
+  if(!y || !m) return;
+  weekCursor = mondayOf(new Date(y, m-1, 1));
+  renderWeek();
+});
+
+(async function init(){
+  renderLegend();
+  await loadData();
+  renderMonth();
+  renderWeek();
+})();
+</script>
+</body>
+</html>
