@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>たのしんポータル｜田野畑村の診療所ガイド</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap" rel="stylesheet">
     <style>
         /* --- カラー＆デザイン設定 --- */
         :root {
@@ -210,6 +213,40 @@
             cursor: pointer;
         }
 
+        .btn-square-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 124px);
+            justify-content: space-between;
+            gap: 10px;
+            margin: 16px 0;
+        }
+        .btn-square {
+            aspect-ratio: 1 / 1;
+            width: 124px;
+            background-color: #78909C;
+            color: #FFFFFF;
+            text-decoration: none;
+            border: none;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px;
+            cursor: pointer;
+        }
+        .btn-square-icon {
+            font-size: 50px;
+        }
+        .btn-square-label {
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.3;
+            white-space: nowrap;
+        }
+
         .tel-template {
             background-color: #F9FBE7;
             border: 1px dashed #9CCC65;
@@ -257,6 +294,116 @@
             background-color: var(--accent-green);
             color: var(--main-green);
             font-weight: bold;
+        }
+
+        /* ワクチン横スライドカード */
+        .vaccine-slide-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 12px;
+            padding: 4px 4px 10px 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .vaccine-slide-card {
+            flex: 0 0 82%;
+            scroll-snap-align: start;
+            background-color: #FFFFFF;
+            border: 1px solid #E0E0E0;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 14px 16px;
+        }
+        .vaccine-slide-tag {
+            display: inline-block;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+        .vaccine-slide-row {
+            margin-bottom: 10px;
+        }
+        .vaccine-slide-row:last-child {
+            margin-bottom: 0;
+        }
+        .vaccine-slide-row-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+        .vaccine-slide-row-value {
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .vaccine-point-list {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .vaccine-point-list li {
+            margin-bottom: 4px;
+        }
+        .vaccine-group-label {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--main-green);
+            margin-bottom: 2px;
+        }
+        .vaccine-group-block {
+            margin-bottom: 8px;
+        }
+        .rounded-cute-font {
+            font-family: 'Kosugi Maru', 'Noto Sans JP', sans-serif;
+        }
+        .label-justify {
+            display: inline-block;
+            width: 5em;
+            text-align: justify;
+            text-align-last: justify;
+        }
+        .sched-open {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--main-green);
+        }
+        .sched-close {
+            font-size: 14px;
+            font-weight: bold;
+            color: #C62828;
+        }
+        .sched-note {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .sched-label {
+            color: var(--text-muted);
+        }
+        .sched-card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .sched-day-card {
+            background-color: #FAFAFA;
+            border: 1px solid #EEEEEE;
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+        .sched-day-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .sched-line {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 4px;
+        }
+        .sched-line:last-child {
+            margin-bottom: 0;
         }
 
         /* 検索窓 */
@@ -533,18 +680,18 @@
         <div class="menu-grid">
             <div class="menu-btn" onclick="switchPage('page-visit')">
                 <span class="btn-emoji">🎒</span>
-                <h3>受診の準備</h3>
-                <p>持ち物や<br>受診時間の目安</p>
+                <h3 style="white-space: nowrap; font-size: 13px;">診療所のキホン</h3>
+                <p>持ち物、診療時間<br>診療カレンダー</p>
             </div>
             <div class="menu-btn" onclick="switchPage('page-forecast')">
                 <span class="btn-emoji">🌤️</span>
-                <h3>本日の混雑予報</h3>
-                <p>急患の方向けの<br>待ち時間目安</p>
+                <h3>混雑予報</h3>
+                <p>いま来た場合の<br>待ち時間目安</p>
             </div>
             <div class="menu-btn" onclick="switchPage('page-vaccine')">
                 <span class="btn-emoji">💉</span>
-                <h3>ワクチンのご案内</h3>
-                <p>種類と適齢期・<br>受診時の持ち物</p>
+                <h3>ワクチンのコト</h3>
+                <p>接種時の持ち物<br>ワクチンの選び方・適齢期</p>
             </div>
             <div class="menu-btn" onclick="switchPage('page-checkup')">
                 <span class="btn-emoji">📋</span>
@@ -565,14 +712,58 @@
     </div>
 
     <div id="page-visit" class="app-page">
-        <h2>受診の準備（持ち物・受診時間の目安）</h2>
+        <h2>診療所のキホン情報<br><span style="display: block; font-size: 13px; color: #555555; font-weight: normal; margin-top: 4px;">～診療時間、持ち物、診療カレンダーの確認～</span></h2>
         <div class="card">
             <p class="description">
-                患者様のお支払い負担の軽減および正確で安全な診断・治療のために、以下の書類や手帳のご提示をお願いしております。<br><br>
-                受付にてスタッフが丁寧に確認いたしますので、どうぞ安心してお持ちください。
+                <strong>診療所はいつやっているの？何を持っていけばいいの？</strong><br>そんな疑問にお答えするページです。
             </p>
         </div>
-        
+
+        <span class="section-sub-title">診療時間案内</span>
+        <div class="card">
+            <p class="description" style="margin-bottom: 12px;">
+                下記の診療時間案内を予めご確認ください<br><strong>混雑回避のため、受診の前に診療所にお電話ください。</strong>
+            </p>
+            <div class="sched-card-list" style="margin-bottom: 16px;">
+                <div class="sched-day-card">
+                    <div class="sched-day-title">月曜日</div>
+                    <div class="sched-line"><span class="sched-label">午前：</span><span class="sched-open">外来</span></div>
+                    <div class="sched-line"><span class="sched-label">午後：</span><span class="sched-open">外来</span></div>
+                </div>
+                <div class="sched-day-card">
+                    <div class="sched-day-title">火曜日</div>
+                    <div class="sched-line"><span class="sched-label">午前：</span><span class="sched-open">外来</span>　※<span style="font-weight: bold;">第2・第4火曜は</span><span class="sched-close">休診</span><span class="sched-note">（岩泉病院支援）</span></div>
+                    <div class="sched-line"><span class="sched-label">午後：</span><span class="sched-close">休診</span><span class="sched-note">　（訪問診療、研修等）</span></div>
+                </div>
+                <div class="sched-day-card">
+                    <div class="sched-day-title">水曜日</div>
+                    <div class="sched-line"><span class="sched-label">午前：</span><span class="sched-open">外来</span></div>
+                    <div class="sched-line"><span class="sched-label">午後：</span><span class="sched-open">外来</span></div>
+                </div>
+                <div class="sched-day-card">
+                    <div class="sched-day-title">木曜日</div>
+                    <div class="sched-line"><span class="sched-label">午前：</span><span class="sched-open">外来</span></div>
+                    <div class="sched-line"><span class="sched-label">午後：</span><span class="sched-close">休診</span><span class="sched-note">　（施設回診、訪問診療、研修、予防接種等）</span></div>
+                </div>
+                <div class="sched-day-card">
+                    <div class="sched-day-title">金曜日</div>
+                    <div class="sched-line"><span class="sched-label">午前：</span><span class="sched-open">外来</span></div>
+                    <div class="sched-line"><span class="sched-label">午後：</span><span class="sched-open">外来</span></div>
+                </div>
+            </div>
+            <div class="btn-square-grid" style="grid-template-columns: repeat(2, 124px); justify-content: space-around;">
+                <button class="btn-square" style="background-color: var(--main-green);" onclick="switchPage('page-forecast')">
+                    <span class="btn-square-icon">📊</span>
+                    <span class="btn-square-label">混雑予報を<br>確認する</span>
+                </button>
+                <a href="https://gentle-quokka-1d3363.netlify.app/%E8%A8%BA%E7%99%82%E3%82%AB%E3%83%AC%E3%83%B3%E3%83%80%E3%83%BC.html" target="_blank" class="btn-square" style="background-color: #78909C;">
+                    <span class="btn-square-icon">📅</span>
+                    <span class="btn-square-label">診療カレンダーを<br>確認する</span>
+                </a>
+            </div>
+        </div>
+
+
         <span class="section-sub-title">全員にお持ちいただきたいもの</span>
         <div class="card">
             <div class="check-item">
@@ -630,7 +821,7 @@
 
     <div id="page-forecast" class="app-page">
         <h2>本日の混雑予報</h2>
-        <p class="description">定期予約の方以外の患者様が、本日「急患」として今すぐ来所される場合の待ち時間の目安です。</p>
+        <p class="description"><strong style="white-space: nowrap;">当日ご予約のない方の診察待ち時間の目安</strong><br><span style="font-size: 12px; color: #555555;">※診察順は、症状や診療内容により前後します。</span></p>
         
         <div id="auto-forecast-target">
             <div class="loading-text">予報データを読み込んでいます...</div>
@@ -638,96 +829,191 @@
 
         <div class="card">
             <p class="description">
-                ご自宅でお待ちいただける方は、事前にお電話で「受診時間の目安」をお問い合わせください。<br><br>
-                来所の前に「本日受診したい」とご連絡をいただくことで、比較的スムーズなご案内時間をお知らせすることができます。<br><br>
-                <span style="font-size: 12px; color: var(--text-muted);">※なお、緊急対応の重複や、難しい対応が発生する場合は、お電話で案内した時間よりもさらに待ち時間が長くなる可能性がございます。あらかじめご了承いただけますと幸いです。</span>
+                <strong>受診の前にお電話を！</strong><br>
+                体調不良の中で長時間お待ちいただくことのないよう、比較的スムーズな時間をお知らせします。<br><br>
+                重い不調等によりお急ぎの場合も、診察準備のため、事前のご連絡をお願いいたします。<br><br>
+                <span style="font-size: 12px; color: #AAAAAA;">※なお、緊急対応の重複や、難しい対応が発生する場合は、<strong style="color: var(--text-dark);">想定した時間よりも待ち時間が長くなる可能性</strong>がございます。あらかじめご了承いただけますと幸いです。</span>
             </p>
         </div>
 
-        <a href="tel:0194333101" class="action-btn">📞 診療所に電話して目安を確認する</a>
-
         <div class="tel-template">
-            <strong>💡 お電話でスタッフにお伝えください：</strong><br>
-            「◯日から◯℃の熱（または主な症状）があって、これからかかりたい。何時頃に行くのがよいか？」
+            <strong>❗️お電話口での確認内容</strong><br>
+            「発症した日」「主な症状」「受診の手段」
         </div>
 
-        <button class="action-btn" style="background-color: #78909C;" onclick="switchPage('page-visit')">
-            🎒 受診時の持ち物を確認する
-        </button>
+        <div class="btn-square-grid">
+            <a href="tel:0194333101" class="btn-square" style="background-color: var(--main-green);">
+                <span class="btn-square-icon">☎</span>
+                <span class="btn-square-label">診療所に<br>電話する</span>
+            </a>
+            <button class="btn-square" onclick="switchPage('page-visit')">
+                <span class="btn-square-icon">🎒</span>
+                <span class="btn-square-label">受診時の<br>持ち物</span>
+            </button>
+            <a href="https://gentle-quokka-1d3363.netlify.app/%E8%A8%BA%E7%99%82%E3%82%AB%E3%83%AC%E3%83%B3%E3%83%80%E3%83%BC.html" target="_blank" class="btn-square">
+                <span class="btn-square-icon">📅</span>
+                <span class="btn-square-label">診療<br>カレンダー</span>
+            </a>
+        </div>
     </div>
 
     <div id="page-vaccine" class="app-page">
-        <h2>ワクチンのご案内</h2>
-        <p class="description">当院で取り扱っている主なワクチンの一覧です。健康を守るため、適切な時期での接種をお勧めしております。（左右にスクロールしてご覧ください）</p>
-        
-        <div class="table-scroll-container">
-            <table class="vaccine-table">
-                <thead>
-                    <tr>
-                        <th style="width: 80px;">ワクチン別</th>
-                        <th style="width: 200px;">ワクチンの種類</th>
-                        <th style="width: 170px;">主な対象・適齢期</th>
-                        <th style="width: 200px;">主な効果/副反応</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td style="font-weight: bold; color: #C2185B;">こども</td>
-                        <td>肺炎球菌、五種混合、ロタ、B型肝炎、BCG、水痘、麻しん風しん、おたふくかぜ、日本脳炎、二種混合、子宮頸がん</td>
-                        <td>生後2ヶ月〜順次<br><strong>（公費・無料）</strong><br><span style="color:#7F8C8D; font-size:11px;">※一部任意ワクチン（おたふくかぜ2回目など当院推奨のもの）は有料</span></td>
-                        <td>子どもの重症感染症の各予防。<br>接種部位の赤み、腫れ、一時的な発熱など.</td>
-                    </tr>
-                    <tr>
-                        <td style="font-weight: bold; color: #1976D2;">おとな</td>
-                        <td>肺炎球菌、帯状疱疹、RSウイルス</td>
-                        <td>
-                            ・高齢者肺炎球菌：65歳の1年間（このときだけ無料）<br>
-                            ・帯状疱疹：50歳以降の村内居住者（公費補助は生涯1度のみ）<br>
-　　　　　　　　　　　　　　・生ワクチン（1回接種）補助1回4000円<br>
-　　　　　　　　　　　　　　・組換ワクチン（2回接種）補助2回/各1万円<br>
-                            ・RSウイルス：60歳以上の任意接種のみ（公費なし）
-                        </td>
-                        <td>
-                            ・肺炎球菌：肺炎球菌による侵襲性感染症の予防<br>
-                            ・帯状疱疹／RSウイルスの各予防。<br>
-                            注射した場所の痛み、だるさなど。
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="font-weight: bold; color: #E65100;">季節限定</td>
-                        <td>・インフルエンザ<br>
-                            ・新型コロナ<br>
-                            ・高齢者向けインフルエンザ（※公費については未定）</td>
-                        <td>毎年秋〜冬にかけて実施<br>（年齢や年度により公費助成あり）</td>
-                        <td>季節性ウイルス感染症の重症化予防。<br>接種部位の軽微な赤みや腫れなど。</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <a href="https://script.google.com/macros/s/AKfycbxlzHKRP3xmzdJtzujc51a7bHhEVv2FUq-sNFABgATofjTZgvj0b5t1-CCwBY6bZdwq/exec" target="_blank" class="action-btn" style="background-color: #E1BEE7; color: #4A148C; margin-top: 20px;">
-            🗓️ 「こどもの予防接種スケジュール確認」はこちら
-        </a>
+        <h2>ワクチンのコト</h2>
+        <p class="description">
+            <strong>予防接種の持ち物は？</strong><br>
+            <strong>何が受けられるの？</strong><br>
+            <strong>いつ受ければいいの？</strong><br>
+            そんな疑問をこのページで解決してください！
+        </p>
 
         <span class="section-sub-title">ワクチン接種時の持ち物</span>
         <div class="card">
-            <p class="description">　
-                ・<strong>母子健康手帳</strong>（お子様のこれまでの接種歴確認に必須です）<br>
-                ・<strong>予防接種手帳</strong>（過去の接種歴の確認に必要です）<br>
-                ・<strong>予診票</strong>（自治体から届いた書類一式）
+            <p class="description">
+                <span class="label-justify">【こども】</span><strong>母子健康手帳</strong><br>
+                <span class="label-justify">【おとな】</span><strong>予防接種手帳</strong><br>
+                <span class="label-justify">【全員】</span><strong>予診票</strong><br><br>
+                予防接種時の大切な確認に使用します。<br>
+                <span style="font-size: 12px; color: #555555;">※季節性ワクチンの予診票は窓口に備えてあります</span>
             </p>
         </div>
 
-        <div class="limit-nudge">
-            <strong>お申込み方法について：</strong><br>
-            LINEリッチメニューの【おとな/こどものワクチン申込みフォーム】をご活用ください！<br>
-            窓口やお電話でも予約を承りますが、日中の診療をスムーズに行うために、お問い合わせは平日の16時以降にお願いします。<br><br>
-            ※なお、当院に定期通院されている方は、定期受診の際に診察室で「ついでに申込み」も可能です。
+        <span class="section-sub-title">お申し込み方法</span>
+        <div class="card">
+            <p class="description">
+                公式LINEリッチメニューからもご予約いただけます。<br><br>
+                左下のリンクでは、<br>
+                お子様の年齢に見合うワクチン探しをサポートします。
+            </p>
         </div>
 
-        <a href="https://line.me/R/oaMessage/@042yvhul/" target="_blank" class="action-btn" style="background-color: #06C755; color: #FFFFFF; margin-top: 10px;">
-            💬 LINEで予防接種の予約をする
-        </a>
+        <div class="btn-square-grid" style="grid-template-columns: repeat(2, 124px); justify-content: space-around;">
+            <a href="https://script.google.com/macros/s/AKfycbxlzHKRP3xmzdJtzujc51a7bHhEVv2FUq-sNFABgATofjTZgvj0b5t1-CCwBY6bZdwq/exec" target="_blank" class="btn-square rounded-cute-font" style="background-color: #E1F5FE;">
+                <span class="btn-square-icon">📅</span>
+                <span class="btn-square-label" style="font-size: 15px; color: #0277BD;">こどもの年齢から<br>ワクチンを探す</span>
+            </a>
+            <a href="https://line.me/R/oaMessage/@042yvhul/" target="_blank" class="btn-square rounded-cute-font" style="background-color: #06C755;">
+                <span class="btn-square-icon">💬</span>
+                <span class="btn-square-label" style="font-size: 15px;">公式LINEで<br>ワクチンを申込む</span>
+            </a>
+        </div>
+
+        <div class="card" style="margin-top: 6px;">
+            <p class="description">
+                当診療所に定期通院中の方は<br><br>
+                受診の際に「<strong>診察室で</strong>」お申し込みいただけます。
+            </p>
+        </div>
+
+        <span class="section-sub-title">診療所で取り扱っているワクチン一覧</span>
+        <p class="description" style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">← 横にスライドしてご覧ください →</p>
+        <div class="vaccine-slide-container">
+            <div class="vaccine-slide-card">
+                <span class="vaccine-slide-tag" style="background-color: #FCE4EC; color: #C2185B;">こども</span>
+                <div class="vaccine-slide-row">
+                    <div class="vaccine-slide-row-label">ワクチンの種類</div>
+                    <div class="vaccine-slide-row-value">
+                        <div class="vaccine-group-block">
+                            <div class="vaccine-group-label">乳児期（生後2ヶ月〜）</div>
+                            五種混合、肺炎球菌、ロタ、B型肝炎、BCG
+                        </div>
+                        <div class="vaccine-group-block">
+                            <div class="vaccine-group-label">1歳前後〜</div>
+                            麻しん風しん、水痘、おたふくかぜ
+                        </div>
+                        <div class="vaccine-group-block">
+                            <div class="vaccine-group-label">3歳以降</div>
+                            日本脳炎
+                        </div>
+                        <div class="vaccine-group-block">
+                            <div class="vaccine-group-label">5歳（年長さん）</div>
+                            麻しん風しん、おたふくかぜ<span style="color:#555555; font-size:11px;">（※任意接種）</span>
+                        </div>
+                        <div class="vaccine-group-block" style="margin-bottom: 0;">
+                            <div class="vaccine-group-label">学童期以降</div>
+                            二種混合、子宮頸がん
+                        </div>
+                    </div>
+                </div>
+                <div class="vaccine-slide-row">
+                    <div class="vaccine-slide-row-label">主な対象・適齢期</div>
+                    <div class="vaccine-slide-row-value">生後2ヶ月から順次（基本は接種無料）<br><span style="color:#555555; font-size:11px;">※一部任意ワクチンは有料<br>（おたふくかぜ2回目など当院推奨のもの）</span></div>
+                </div>
+                <div class="vaccine-slide-row">
+                    <div class="vaccine-slide-row-label">ワクチンの大事なポイント</div>
+                    <ul class="vaccine-point-list">
+                        <li>各感染症の死亡/入院/重症化の低減および予防</li>
+                        <li>個人の効果だけではなく、社会的なまん延予防</li>
+                        <li>主な副反応は、一時的な発熱や接種部位の痛み</li>
+                        <li>重篤な有害事象はゼロではないが、かなり稀</li>
+                        <li>発生時は<strong>予防接種健康被害救済制度</strong>を申請</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="vaccine-slide-card">
+                <span class="vaccine-slide-tag" style="background-color: #E3F2FD; color: #1976D2;">おとな</span>
+                <div class="vaccine-slide-row">
+                    <div class="vaccine-slide-row-label">ワクチンの種類</div>
+                    <div class="vaccine-slide-row-value">
+                        <div class="vaccine-group-block">
+                            <div class="vaccine-group-label">定期接種（公費補助あり）</div>
+                            肺炎球菌、帯状疱疹
+                        </div>
+                        <div class="vaccine-group-block" style="margin-bottom: 0;">
+                            <div class="vaccine-group-label">任意接種（公費補助なし）</div>
+                            RSウイルス、破傷風トキソイド
+                        </div>
+                    </div>
+                </div>
+                <div class="vaccine-slide-row">
+                    <div class="vaccine-slide-row-label">主な対象・適齢期</div>
+                    <div class="vaccine-slide-row-value">
+                        ・高齢者肺炎球菌：65歳の誕生日から1年間<br>
+                        <span style="color:#555555; font-size:11px;">※この1年間のみ無料</span><br>
+                        ・帯状疱疹：50歳以上の村民全員<br>
+                        <span style="color:#555555; font-size:11px;">※補助は生涯1度</span><br>
+                        　・生ワクチン（1回接種）：補助1回4000円<br>
+                        　・組換ワクチン（2回接種）：補助2回・各1万円<br>
+                        ・RS：60歳以上（補助なし）<br>
+                        ・破傷風：任意接種のみ（未接種者は1年以内に3回）
+                    </div>
+                </div>
+                <div class="vaccine-slide-row">
+                    <div class="vaccine-slide-row-label">ワクチンの大事なポイント</div>
+                    <ul class="vaccine-point-list">
+                        <li>死亡/入院/重症化の抑制</li>
+                        <li>主な副反応は、一時的な発熱や接種部位の痛み</li>
+                        <li>重篤な有害事象はゼロではないが、かなり稀</li>
+                        <li>発生時は<strong>予防接種健康被害救済制度</strong>を申請</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="vaccine-slide-card">
+                <span class="vaccine-slide-tag" style="background-color: #FFF3E0; color: #E65100;">季節限定</span>
+                <div class="vaccine-slide-row">
+                    <div class="vaccine-slide-row-label">ワクチンの種類</div>
+                    <div class="vaccine-slide-row-value">
+                        ・<strong>インフルエンザ</strong><br>
+                        ・<strong>新型コロナ</strong><br>
+                        ・高用量インフルエンザ（R8年は見送り）
+                    </div>
+                </div>
+                <div class="vaccine-slide-row">
+                    <div class="vaccine-slide-row-label">主な接種時期・補助</div>
+                    <div class="vaccine-slide-row-value">
+                        <span style="color: var(--main-green); font-weight: bold;">【10月から1月頃までの予定】</span><br>
+                        ・インフルエンザ<br>
+                        ・新型コロナ<br>
+                        <span style="color:#555555; font-size:11px;">※補助は村の広報を確認ください。</span>
+                    </div>
+                </div>
+                <div class="vaccine-slide-row">
+                    <div class="vaccine-slide-row-label">主な効果/副反応</div>
+                    <div class="vaccine-slide-row-value">季節性ウイルス感染症の重症化予防。<br>接種部位の軽微な赤みや腫れなど。</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="page-checkup" class="app-page">
