@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>インフル・コロナワクチン管理｜職員専用</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root {
+    --green: #17614F;
+    --green-dark: #104A3C;
+    --mint: #E9F6EF;
+    --ink: #18332C;
+    --muted: #6B7C76;
+    --line: #DFE8E4;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    font-family: -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    background: #F5F5F5; color: var(--ink);
+  }
+  .app-shell { display: flex; flex-direction: column; height: 100vh; }
+
+  .app-header {
+    background: var(--green);
+    color: #fff;
+    padding: 10px 16px 0;
+    flex: 0 0 auto;
+  }
+  .header-top {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px; margin-bottom: 8px;
+  }
+  .header-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .header-title h1 { font-size: 16px; margin: 0; font-weight: 700; }
+  .header-title .season { font-size: 12px; color: rgba(255,255,255,.8); }
+  .staff-badge {
+    font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px;
+    background: rgba(255,255,255,.16); color: #fff; white-space: nowrap;
+  }
+
+  .tab-nav {
+    display: flex; gap: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .tab-btn {
+    appearance: none; border: none; background: transparent; cursor: pointer;
+    color: rgba(255,255,255,.78); font-size: 13px; font-weight: 600;
+    padding: 9px 14px; border-radius: 8px 8px 0 0; white-space: nowrap;
+    position: relative; top: 1px;
+  }
+  .tab-btn.active {
+    background: #F5F5F5; color: var(--green-dark);
+  }
+
+  .frame-area { flex: 1 1 auto; min-height: 0; position: relative; background: #F5F5F5; }
+  .frame-area iframe {
+    position: absolute; inset: 0; width: 100%; height: 100%; border: none; display: none;
+  }
+  .frame-area iframe.active { display: block; }
+
+  .loading-msg {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 13px; pointer-events: none;
+  }
+
+  @media (max-width: 480px) {
+    .header-title h1 { font-size: 14px; }
+    .tab-btn { font-size: 12px; padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="app-header">
+      <div class="header-top">
+        <div class="header-title">
+          <h1>インフル・コロナワクチン予約管理</h1>
+          <span class="season" id="seasonLabel"></span>
+        </div>
+        <span class="staff-badge">職員専用</span>
+      </div>
+      <nav class="tab-nav" id="tabNav">
+        <button class="tab-btn active" data-tab="reception">受付コンソール</button>
+        <button class="tab-btn" data-tab="doctor">医師問診</button>
+        <button class="tab-btn" data-tab="staff">予約一括登録</button>
+        <button class="tab-btn" data-tab="admin">管理者</button>
+      </nav>
+    </div>
+    <div class="frame-area" id="frameArea">
+      <div class="loading-msg" id="loadingMsg">読み込み中...</div>
+    </div>
+  </div>
+
+  <script>
+    // GASウェブアプリのデプロイURL。バージョン更新のたびにApps Scriptエディタで
+    // 「新バージョン」をデプロイし直しても、このデプロイID自体は変わらないため、
+    // このURLを書き換える必要はない。
+    var EXEC_URL = 'https://script.google.com/macros/s/AKfycbwOoIyWggoz4h7sdeouUvbuO6six-2CSQE_5ilEpT6Dh4VU9TtYDJZuS9xWBfpc6uMP/exec';
+
+    var TABS = {
+      reception: { param: '', label: '受付コンソール' },
+      doctor: { param: 'doctor', label: '医師問診' },
+      staff: { param: 'staff', label: '予約一括登録' },
+      admin: { param: 'admin', label: '管理者' }
+    };
+
+    // 令和年度（4月始まり）表示。分母ラベル等、GAS側の年度表記と揃えている。
+    (function () {
+      var now = new Date();
+      var y = now.getFullYear();
+      var m = now.getMonth() + 1;
+      var fiscalYear = m >= 4 ? y : y - 1;
+      document.getElementById('seasonLabel').textContent = '令和' + (fiscalYear - 2018) + '年度シーズン';
+    })();
+
+    var frameArea = document.getElementById('frameArea');
+    var loadingMsg = document.getElementById('loadingMsg');
+    var loadedFrames = {};
+
+    function urlFor(tabKey) {
+      var t = TABS[tabKey];
+      return t.param ? (EXEC_URL + '?p=' + t.param) : EXEC_URL;
+    }
+
+    function showTab(tabKey) {
+      document.querySelectorAll('.tab-btn').forEach(function (btn) {
+        btn.classList.toggle('active', btn.dataset.tab === tabKey);
+      });
+
+      var isFirstLoad = !loadedFrames[tabKey];
+      if (isFirstLoad) {
+        var iframe = document.createElement('iframe');
+        iframe.title = TABS[tabKey].label;
+        iframe.addEventListener('load', function () {
+          if (iframe.classList.contains('active')) loadingMsg.style.display = 'none';
+        });
+        frameArea.appendChild(iframe);
+        loadedFrames[tabKey] = iframe;
+        iframe.src = urlFor(tabKey);
+      }
+
+      Object.keys(loadedFrames).forEach(function (key) {
+        loadedFrames[key].classList.toggle('active', key === tabKey);
+      });
+
+      loadingMsg.style.display = isFirstLoad ? 'flex' : 'none';
+    }
+
+    document.getElementById('tabNav').addEventListener('click', function (e) {
+      var btn = e.target.closest('.tab-btn');
+      if (!btn) return;
+      showTab(btn.dataset.tab);
+    });
+
+    showTab('reception');
+  </script>
+</body>
+</html>
